@@ -13,9 +13,10 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import ExtraTreesRegressor 
+from sklearn.metrics import mean_squared_log_error,r2_score,mean_squared_error
 import numpy as np
 
-df=pd.read_csv("E:/All Data Set/Car_Datasets.csv")
+df=pd.read_csv("car_data.csv")
 
 cur_year= date.today().year
 df['current_year']=cur_year
@@ -69,12 +70,27 @@ regressor=RandomizedSearchCV(estimator = rf, param_distributions = random_grid,s
 
 
 regressor.fit(x_train,y_train)
+print(regressor.best_score_)
+print(regressor.best_params_)
 
 y_pred=regressor.predict(x_test)
 
 sb.distplot(y_test-y_pred)
+def result(y_test,y_pred):
+    r=[]
+    r.append(mean_squared_log_error(y_test, y_pred))
+    r.append(np.sqrt(r[0]))
+    r.append(r2_score(y_test,y_pred))
+    r.append(round(r2_score(y_test,y_pred)*100,4))
+    return (r)
+
+r_rf=result(y_test,y_pred)
+#print("MSLE : {}".format(r_rf[0]))
+#print("Root MSLE : {}".format(r_rf[1]))
+print("R2 Score : {} or {}%".format(r_rf[2],r_rf[3]))
+#accu['KNN']=r4_knn
 
 import pickle
-file = open("E:/Project/Car_Dekho/car_model.pkl", 'wb')
+file = open("car_model.pkl", 'wb')
 
 pickle.dump(regressor,file)
